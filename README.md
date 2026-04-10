@@ -18,11 +18,11 @@ AVEC ARDUINO :
 * lancer le main_arduino.py
 
 ## Utilisation
-* ![Tableau](https://gitlab.etu.umontpellier.fr/projet_cmi/Projet-CMI-1-2025/-/raw/main/Emojis/Tableau.png) : change entre le mode dessin et le mode laser (Première activation : mode dessin)
-* ![Thumb Left](https://gitlab.etu.umontpellier.fr/projet_cmi/Projet-CMI-1-2025/-/raw/main/Emojis/Thumb_Left.png) : Revenir à la diapositive précédente
-* ![Thumb Right](https://gitlab.etu.umontpellier.fr/projet_cmi/Projet-CMI-1-2025/-/raw/main/Emojis/Thumb_Right.png) : Aller à la diapositive suivante
-* ![Pince](https://gitlab.etu.umontpellier.fr/projet_cmi/Projet-CMI-1-2025/-/raw/main/Emojis/pince.png) : Dessine/ déplace le pointeur laser
-* ![Middle Finger](https://gitlab.etu.umontpellier.fr/projet_cmi/Projet-CMI-1-2025/-/raw/main/Emojis/middle_finger.png) : Ferme le diaporama et arrête le programme
+* ![Tableau](https://github.com/Yotoon2/Projet-CMI-1-2025/blob/main/Emojis/Tableau.png) : change entre le mode dessin et le mode laser (Première activation : mode dessin)
+* ![Thumb Left](https://github.com/Yotoon2/Projet-CMI-1-2025/blob/main/Emojis/Thumb_Left.png) : Revenir à la diapositive précédente
+* ![Thumb Right](https://github.com/Yotoon2/Projet-CMI-1-2025/blob/main/Emojis/Thumb_Right.png) : Aller à la diapositive suivante
+* ![Pince](https://github.com/Yotoon2/Projet-CMI-1-2025/blob/main/Emojis/pince.png) : Dessine/ déplace le pointeur laser
+* ![Middle Finger](https://github.com/Yotoon2/Projet-CMI-1-2025/blob/main/Emojis/middle_finger.png) : Ferme le diaporama et arrête le programme
   
 ### Auteurs
 * [@nexy-us](https://github.com/nexy-us)
