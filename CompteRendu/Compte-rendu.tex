@@ -1,0 +1,114 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage{enumitem}
+
+\begin{document}
+\title{PROJET CMI SEMESTRE 2}	
+\author{Yoan Cochet, Mathilde Croset, Hindi Mabrouk}
+\maketitle
+
+\part*{Problématique}
+La problématique
+\part*{Contexte}
+Notre projet de Hand-Tracking consiste à développer un programme capable de contrôler une présentation grâce à des signes statiques de la main détectés via une webcam. L'objectif est d'améliorer la fluidité des présentations en supprimant l'utilisation du clavier ou de la souris pour changer les diapositives. \\
+Le systèùme doit être simple : lancer le programme suffit, aucune interface complexe n'est requise. \\
+Le programme vise toute personne souhaitant présenter de manière plus fluide : étudiants, enseignants ou autres conférenciers.
+\part*{Recueil des besoins}
+Le recueil des besoins
+\part*{Cahier des charges}
+\section{Objectifs du projet}
+\subsubsection*{Objectifs fonctionnels}
+- détecter une main en temps réel via webcam \\
+- reconnaître des signes statiques prédéfinis \\
+- traduire chaque signe en commande (ex : aller à la prochaine diapo) \\
+- permettre de réaliser une présentation sans toucher à l'ordinateur \\
+\subsubsection*{Objectifs non fonctionnels}
+- simplicité d'utilisation (lancer le programme = prêt) \\
+- stabilité pendant toute une présentation \\
+\section{Périmètre du projet}
+Détection de plusieurs mains. \\
+Reconnaissance de signes statiques. \\
+Lancement simple du programme (pas d'interface complexe). \\
+Interaction avec un logiciel de présentation via raccourcis clavier. \\
+Utilisation d'outils Mediapipe + Python. \\
+\section{Fonctionnement attendu}
+Le système doit : 
+\begin{enumerate}[label=\roman*]
+\item Ouvrir la webcam automatiquement
+\item capturer une image en continue
+\item détecter la présence d'une main
+\item extraire les informations (landmarks)
+\item envoyer ces informations au modèle de classification
+\item recevoir le label correspondant
+\item déclencher une action si :
+\begin{itemize}
+\item la label est différent de None
+\item le geste est considéré comme volontaire
+\end{itemize}
+\end{enumerate}
+\subsubsection*{Fonctionnalités principales}
+Reconnaissance image -> label \\
+Label -> action clavier \\
+Gestion des "faux gestes" \\
+Eventuels gestes composés
+\section{Ressources \& contraintes}
+\subsection*{Ressources techniques}
+Python 3.x \\
+PyCharm \\
+OpenCV \\
+Mediapipe \\
+Mediapipe Model Maker (installation requise) \\
+PyAutoGUI / keyboard \\
+Ordinateurs + webcams\\
+GitHub
+\subsection*{Contraintes}
+\begin{itemize}
+\item 300h au total
+\item 100 euros maximum (capteurs utilisés)
+\item risques Mediapipe et compatibilité Python
+\item lumières influençant la détection
+\end{itemize}
+\section{Description générale du logiciel}
+Le logiciel à produire est un programme Python capable de :
+\begin{itemize}
+\item ouvrir un flux vidéo,
+\item détecter une ou deux mains,
+\item isoler un signe statique
+\item classifier ce signe via un modèle entraîné Model Maker,
+\item envoyer un label,
+\item déclencher une action associée.
+\end{itemize}
+Le modèle sera entraîné sur un dataset structure ; chaque label correspondant à un signe prédéfini.
+\section{Définition du problème \& besoins}
+Le problème à résoudre : comment remplacer l'utilisation d'un clavier pendant une présentation ? \\
+-> par un système sans contact basé sur les mains, facile à utiliser, rapide et fiable. \\
+Les besoins identifiés :
+\begin{itemize}
+\item signes simples, reproductibles
+\item détection stable
+\item filtrage des gestes involontaires
+\item bon taux de précision
+\item interaction fiable avec PowerPoint ou équivalent
+\end{itemize}
+\part*{Etude de l'existant}
+L'étude de l'existant
+\part*{Solution}
+La solution
+\part*{Technique}
+La technique
+\part*{Spécification de la technique}
+La spécification de la technique
+\part*{Tests}
+Les tests
+\part*{Campagne de tests}
+La campagne de tests
+\part*{Discussion}
+La discussion
+
+
+
+
+
+
+
+\end{document}
