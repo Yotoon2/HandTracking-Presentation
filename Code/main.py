@@ -174,7 +174,7 @@ def print_gesture_result(result: HandLandmarkerResult, output_image: mp.Image, t
             frame_actuelle = 0
 
         #Ferme le diapo et arrête le programme si on utilise notre majeur
-        elif frame_actuelle == NB_FRAME and top_gesture.category_name == "majeur":
+        elif frame_actuelle == NB_FRAME and top_gesture.category_name == "majeur" and top_gesture.score > 0.98:
             controller.press(keyboard.Key.cmd)
             controller.press('q')
             controller.release(keyboard.Key.cmd)
