@@ -17,7 +17,7 @@ root.withdraw()
 longueur, largeur = root.winfo_screenwidth(), root.winfo_screenheight() #Récupère la résolution de l'écran
 print(longueur, largeur)
 m = Controller() #Pour controller la souris
-PATH = "../Modèles/"
+PATH = "../Modeles/"
 controller = keyboard.Controller() #Pour contrôller le clavier
 mp_hands = mp.tasks.vision.HandLandmarksConnections
 mp_drawing = mp.tasks.vision.drawing_utils
