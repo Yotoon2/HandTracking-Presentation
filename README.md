@@ -13,7 +13,7 @@ SANS ARDUINO :
 
 AVEC ARDUINO :
 * faire le [montage](Others/circuit.odg)
-* upload [code_arduino](Code/Arduino/bluetooth_ardui/bluetooth_ardui.ino)
+* upload [code_arduino](Code/CPP/bluetooth_ardui/bluetooth_ardui.ino)
 * lancer le main_arduino.py
 
 ## Utilisation
