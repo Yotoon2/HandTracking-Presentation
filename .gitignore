@@ -1,0 +1,24 @@
+# Virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+#Vsc
+.vscode/
+
+.git/
+
+# Modeles
+Modeles/exported_model
+Modeles/vm
+
+DataSet/
+Rotating/
+
+GestionImages/dataset
+GestionImages/gesture.mp4
+
+CompteRendu/

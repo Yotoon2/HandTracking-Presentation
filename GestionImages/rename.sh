@@ -2,6 +2,6 @@
 
 for photo in *.jpg; do
   base="${photo%.jpg}"
-  convert "$photo" -rotate 0  "${base}_raav.jpg"
+  convert "$photo" -rotate 0  "${base}_ncw.jpg"
   rm "$photo"
 done

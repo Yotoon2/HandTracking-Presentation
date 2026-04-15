@@ -9,6 +9,8 @@ from pynput import keyboard
 from pynput.mouse import Button, Controller
 import tkinter
 
+from gestures.gesture_logic import handle_pince, handle_swipe_droit, handle_swipe_gauche, trigger_pointeur_laser, trigger_dessin, fermeture_logiciel, get_thumb_direction
+
 # useless pour l'instant ?
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -32,7 +34,7 @@ FONT_THICKNESS = 1
 HANDEDNESS_TEXT_COLOR = (88, 205, 54)  # Couleur du texte sens de la main à la caméra
 GESTURE_TEXT_COLOR = (25, 25, 112)  # Nom du geste
 
-NB_FRAME = 10 #Tout les combiens de tick les effets peuvent s'activer
+NB_FRAME = 20 #Tout les combiens de tick les effets peuvent s'activer
 frame_actuelle = NB_FRAME
 
 def draw_landmarks_on_image(rgb_image, detection_result): #Dessine les points de la mains de part la détection par le modèle google
@@ -98,21 +100,6 @@ def print_result(result: HandLandmarkerResult, output_image: mp.Image, timestamp
     global latest_result
     latest_result = result
 
-def get_thumb_direction(landmarks):
-    """
-    Fonction afin de savoir la direction du pouce lorsque qu'un geste "pouce à l'horizontal" est détecté.
-    Le modèle hésite trop à faire lui-même la différence entre gauche/droite donc on se sert des landmarks (points sur les doigts)
-    """
-
-    thumb_x = landmarks[4].x
-    index_x = landmarks[5].x
-
-    if thumb_x > index_x:
-        return "thumb_left"
-    else:
-        return "thumb_right"
-
-
 def print_gesture_result(result: HandLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     #Gère tout les gestes que l'on a définit au préalable
     global latest_result
@@ -136,49 +123,36 @@ def print_gesture_result(result: HandLandmarkerResult, output_image: mp.Image, t
 
         #Permet de dessiner sur le tableau grace au geste pince
         if frame_actuelle == NB_FRAME and top_gesture.category_name == "pince":
-            x = result.hand_landmarks[0][4].x*longueur #Calcul la futur position de la souris sur l'écran via les données du lanmark 4
+            x = (1-result.hand_landmarks[0][4].x)*longueur #Calcul la futur position de la souris sur l'écran via les données du lanmark 4
             y = result.hand_landmarks[0][4].y*largeur  #Calcul la futur position de la souris sur l'écran via les données du lanmark 4
-            m.press(Button.left)                       #Appuie sur le clic gauche pour commencer le mouvement du dessin
-            m.position = (x, y)                        #Déplace la souris à la position calculée
-            m.release(Button.left)                     #Relache le clic gauche
+            handle_pince(x, y)
 
         #Fais le changement entre le mode dessin et le mode pointeur laser via le geste "tableau"
         elif frame_actuelle == NB_FRAME and top_gesture.category_name == "tableau":
             global pointer
             if pointer == True:
                 #Execute le raccourcis clavier pour se mettre en mode dessin
-                controller.press(keyboard.Key.cmd)
-                controller.press('p')
-                controller.release(keyboard.Key.cmd)
-                controller.release('p')
                 pointer = False
+                trigger_dessin()
             else:
                 #Execute le clavier pour se mettre en mode pointeur laser
                 pointer = True
-                controller.press(keyboard.Key.cmd)
-                controller.press('l')
-                controller.release(keyboard.Key.cmd)
-                controller.release('l')
+                trigger_pointeur_laser()
             frame_actuelle = 0
 
         #Passe à la diapositive précédente
-        elif frame_actuelle == NB_FRAME and top_gesture.category_name == "thumb_left":
-            controller.press(keyboard.Key.left)
-            controller.release(keyboard.Key.left)
+        elif frame_actuelle == NB_FRAME and top_gesture.category_name == "thumb_left" and top_gesture.score > 0.80:
+            handle_swipe_gauche()
             frame_actuelle = 0
 
         #Passe à la diapo suivante
-        elif frame_actuelle == NB_FRAME and top_gesture.category_name == "thumb_right":
-            controller.press(keyboard.Key.right)
-            controller.release(keyboard.Key.right)
+        elif frame_actuelle == NB_FRAME and top_gesture.category_name == "thumb_right" and top_gesture.score > 0.80:
+            handle_swipe_droit()
             frame_actuelle = 0
 
         #Ferme le diapo et arrête le programme si on utilise notre majeur
-        elif frame_actuelle == NB_FRAME and top_gesture.category_name == "majeur" and top_gesture.score > 0.95:
-            controller.press(keyboard.Key.cmd)
-            controller.press('q')
-            controller.release(keyboard.Key.cmd)
-            controller.release('q')
+        if frame_actuelle == NB_FRAME and top_gesture.category_name == "majeur" and top_gesture.score > 0.85:
+            fermeture_logiciel()
             frame_actuelle = 0
             global run
             run = False

@@ -2,6 +2,11 @@ import time
 import mediapipe as mp # type: ignore
 from mediapipe.tasks.python.vision import GestureRecognizer, GestureRecognizerOptions # type: ignore
 from pynput import keyboard # type: ignore
+from gestures.gesture_logic import handle_pince, handle_swipe_droit, handle_swipe_gauche, trigger_pointeur_laser, trigger_dessin, fermeture_logiciel, get_thumb_direction
+import tkinter
+root = tkinter.Tk()
+root.withdraw()
+longueur, largeur = root.winfo_screenwidth(), root.winfo_screenheight()
 
 class MediapipeHandler:
     def __init__(self, arduino=None, serial_port=None, sock=None):
@@ -15,7 +20,9 @@ class MediapipeHandler:
         self.sock = sock
         self.NB_FRAME = 10
         self.frame_actuelle = self.NB_FRAME
-        self.PATH = "../Modèles/"
+        self.PATH = "../Modeles/"
+        self.pointer = True
+        self.hors_champ = False
 
         BaseOptions = mp.tasks.BaseOptions
         HandLandmarker = mp.tasks.vision.HandLandmarker
@@ -44,49 +51,65 @@ class MediapipeHandler:
         self.latest_result = result
 
     def print_gesture_result(self, result, output_image: mp.Image, timestamp_ms: int):
-        """if result.gestures == []: # QUAND LA MAIN EST HORS-CHAMP -> capteurs prennent le relai
-            if self.last_led_state != "ON":
-                self.arduino.led_on()
-                self.last_led_state = "ON"
-
-
-            now = time.time()
-            if now - self.last_imu_request > self.IMU_INTERVAL:
-                self.arduino.hors_champs()
-                self.last_imu_request = now
-
-            if self.serial_port.in_waiting:
-                line = self.serial_port.readline().decode(errors="ignore").strip()
-                print(line)
-
-                if "," in line:
-                    self.sock.sendto(line.encode(), ("127.0.0.1", 5005))
-
+        #Gère tout les gestes que l'on a définit au préalable
+        if result.gestures == []: # MAIN HORS CHAMP
+            self.hors_champ = True
         else:
-            if self.last_led_state != "OFF":
-                self.arduino.led_off()
-                self.last_led_state = 'OFF'"""
+            self.hors_champ = False
 
-        for hand_gestures in result.gestures:
-            
+        for idx, hand_gestures in enumerate(result.gestures): #Affiche dans la console les gestes détectés sur l'image
             if hand_gestures:
                 top_gesture = hand_gestures[0]  # = le plus probable des gestes
+
+                if top_gesture.category_name == "thumb":
+                    landmarks = self.latest_result.hand_landmarks[idx]
+
+                    top_gesture.category_name = get_thumb_direction(landmarks)
+                    
                 #print("Geste détecté :", top_gesture.category_name)
                 
             else:
-                continue
+                pass
                 #print("Geste détecté : inconnu")
 
-            if self.frame_actuelle == self.NB_FRAME and top_gesture.category_name == "Thumb_Up":
-                controller = keyboard.Controller()
-                controller.press(keyboard.Key.right)
-                controller.release(keyboard.Key.right)
+            #Permet de dessiner sur le tableau grace au geste pince
+            if self.frame_actuelle == self.NB_FRAME and top_gesture.category_name == "pince":
+                x = (1-result.hand_landmarks[0][4].x)*longueur #Calcul la futur position de la souris sur l'écran via les données du lanmark 4
+                y = result.hand_landmarks[0][4].y*largeur  #Calcul la futur position de la souris sur l'écran via les données du lanmark 4
+                handle_pince(x, y)
+
+            #Fais le changement entre le mode dessin et le mode pointeur laser via le geste "tableau"
+            elif self.frame_actuelle == self.NB_FRAME and top_gesture.category_name == "tableau":
+                if self.pointer == True:
+                    #Execute le raccourcis clavier pour se mettre en mode dessin
+                    self.pointer = False
+                    trigger_dessin()
+                else:
+                    #Execute le clavier pour se mettre en mode pointeur laser
+                    self.pointer = True
+                    trigger_pointeur_laser()
                 self.frame_actuelle = 0
+
+            #Passe à la diapositive précédente
+            elif self.frame_actuelle == self.NB_FRAME and top_gesture.category_name == "thumb_left" and top_gesture.score > 0.80:
+                handle_swipe_gauche()
+                self.frame_actuelle = 0
+
+            #Passe à la diapo suivante
+            elif self.frame_actuelle == self.NB_FRAME and top_gesture.category_name == "thumb_right" and top_gesture.score > 0.80:
+                handle_swipe_droit()
+                self.frame_actuelle = 0
+
+            #Ferme le diapo et arrête le programme si on utilise notre majeur
+            if self.frame_actuelle == self.NB_FRAME and top_gesture.category_name == "majeur" and top_gesture.score > 0.85:
+                fermeture_logiciel()
+                self.frame_actuelle = 0
+                global run
+                run = False
             elif self.frame_actuelle != self.NB_FRAME:
                 self.frame_actuelle += 1
-                
-        self.latest_gesture_result = result
 
+        self.latest_gesture_result = result
     
     def process_frame(self, mp_image, timestamp_ms):
         self.landmarker.detect_async(mp_image, timestamp_ms=timestamp_ms)

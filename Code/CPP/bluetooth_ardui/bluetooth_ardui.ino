@@ -2,31 +2,40 @@
 #include <ReefwingAHRS.h>
 #include <Arduino_BMI270_BMM150.h>
 
-ReefwingAHRS ahrs;
-SensorData data;
-
-//  Display and Loop Frequency
 int loopFrequency = 0;
-const long displayPeriod = 1000;
 unsigned long previousMillis = 0;
 
+float gx, gy, gz;
+
+// FLEX SENSORS
+const int pinPouce = A5;
+const int pinIndex = A7;
+const int pinMajeur = A6;
+
+int valeurPouce = 0;
+int valeurIndex = 0;
+int valeurMajeur = 0;
 
 BLEService testService("12345678-1234-1234-1234-1234567890ab");
 
 BLEStringCharacteristic testChar(
   "abcdefab-1234-1234-1234-abcdefabcdef",
   BLERead | BLENotify,
-  50
+  150 // NOMBRE MAX DE BYTES "ENVOYABLES" !!!important
 );
 
-int compteur = 0;
+BLEStringCharacteristic cmdChar(
+  "beb5483e-36e1-4688-b7f5-ea07361b26a8",
+  BLERead | BLEWrite | BLENotify,
+  150 // NOMBRE MAX DE BYTES "ENVOYABLES" !!!important
+);
 
 void setup() {
   Serial.begin(115200);
   delay(1500);
 
   if (!BLE.begin()) {
-    Serial.println("BLE impossible à démarrer");
+    Serial.println("[*] BLE impossible à démarrer");
     while (1);
   }
 
@@ -34,32 +43,23 @@ void setup() {
   BLE.setAdvertisedService(testService);
 
   testService.addCharacteristic(testChar);
+  testService.addCharacteristic(cmdChar);
   BLE.addService(testService);
 
-  testChar.writeValue("Début");
+  testChar.writeValue("[*] Début");
 
   BLE.advertise();
 
-  Serial.println("Arduino prête, BLE actif");
-  Serial.println("Nom Bluetooth : NanoBLE_Math");
+  Serial.println("[*] Arduino prête, BLE actif");
+  Serial.println("[*] Nom Bluetooth : NanoBLE_Math");
 
-  //  Initialise the AHRS
-  //  Use default fusion algo and parameters
-  ahrs.begin();
-  
-  ahrs.setFusionAlgorithm(SensorFusion::MADGWICK);
-  ahrs.setDeclination(12.717);
+  Serial.print("[*] Detected Board - ");
 
-  //  Start Serial and wait for connection
-
-  Serial.print("Detected Board - ");
-  Serial.println(ahrs.getBoardTypeString());
-
-  if (IMU.begin() && ahrs.getBoardType() == BoardType::NANO33BLE_SENSE_R2) {
-    Serial.println("BMI270 & BMM150 IMUs Connected."); 
+  if (IMU.begin()) {
+    Serial.println("[*] BMI270 & BMM150 IMUs Connected."); 
   } 
   else {
-    Serial.println("BMI270 & BMM150 IMUs Not Detected.");
+    Serial.println("[*] BMI270 & BMM150 IMUs Not Detected.");
     while(1);
   }
 
@@ -68,34 +68,40 @@ void setup() {
 void loop() {
   BLEDevice central = BLE.central();
   
-
   if (central) {
-    Serial.print("Connecté à : ");
-    Serial.println(central.address());
-
     while (central.connected()) {
       BLE.poll();
-      if (IMU.gyroscopeAvailable()) {  IMU.readGyroscope(data.gx, data.gy, data.gz);  }
-      if (IMU.accelerationAvailable()) {  IMU.readAcceleration(data.ax, data.ay, data.az);  }
-      if (IMU.magneticFieldAvailable()) {  IMU.readMagneticField(data.mx, data.my, data.mz);  }
+      bool actif = false;
+      if (cmdChar.written()){
+        String cmd = cmdChar.value();
+        cmd.trim();
 
-      ahrs.setData(data);
-      ahrs.update();
-      String msg = "NO DATA";
-      if (millis() - previousMillis >= displayPeriod) {
-        //  Display sensor data every displayPeriod, non-blocking.
-        //Serial.print(ahrs.angles.roll, 2);Serial.print(",");Serial.print(ahrs.angles.pitch, 2);Serial.print(",");Serial.print(ahrs.angles.yaw, 2);Serial.print(",");Serial.println(ahrs.angles.heading, 2);
-        previousMillis = millis();
-        msg = String(ahrs.angles.roll) + "," + String(ahrs.angles.pitch) + "," + String(ahrs.angles.yaw) + "," + String(ahrs.angles.heading);
+        if (cmd == "HORS_CHAMP"){
+          actif = true;
+        }
       }
-      testChar.writeValue(msg);
+      int lecturePouce = analogRead(pinPouce);
+      int lectureIndex = analogRead(pinIndex);
+      int lectureMajeur = analogRead(pinMajeur);
 
-      Serial.println(msg);
+      valeurPouce = (valeurPouce + lecturePouce)/2; // pseudo moyenne
+      valeurIndex = (valeurIndex + lectureIndex)/2;
+      valeurMajeur = (valeurMajeur + lectureMajeur)/2; 
 
-      delay(1000);
+      if (actif && (millis() - previousMillis >= 100)) { 
+        previousMillis = millis();
+        if (IMU.gyroscopeAvailable()) { 
+          IMU.readGyroscope(gx, gy, gz);
+          char buffer[120];
+
+          sprintf(buffer, "{\"gyro\":[%.2f,%.2f,%.2f], \"flex\":[%d,%d,%d]}", gx, gy, gz, valeurPouce, valeurIndex, valeurMajeur); // plus stable que concat de str
+
+          testChar.writeValue(buffer);
+          Serial.println(buffer);
+          delay(2);
+        }
+
+      }
     }
-
-    Serial.println("Déconnecté");
   }
 }
-

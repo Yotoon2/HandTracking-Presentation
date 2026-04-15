@@ -49,7 +49,7 @@ int main() {
     //Lancement
     printf("[*] Execution...\n");
     char run_cmd[512];
-    snprintf(run_cmd, sizeof(run_cmd), "cd %s/Code && ../../%s/bin/python3 main.py", REPO_NAME, VENV_NAME);
+    snprintf(run_cmd, sizeof(run_cmd), "cd %s/Code && ../%s/bin/python3 main.py", REPO_NAME, VENV_NAME);
     system(run_cmd);
 
     return 0;
