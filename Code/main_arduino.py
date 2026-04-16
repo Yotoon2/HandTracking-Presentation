@@ -6,7 +6,6 @@ import mediapipe as mp  # type: ignore
 from mediapipe.tasks.python import vision  # type: ignore
 import asyncio
 
-from arduino.arduino import ArduinoBoard
 from arduino.parser import Parser
 from vision.mediapipe_handler import MediapipeHandler
 from vision.drawing import draw_landmarks_on_image
