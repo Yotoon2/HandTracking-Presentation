@@ -20,7 +20,7 @@ mediapipe_handler = MediapipeHandler()
 m = Controller()  # Pour controller la souris
 controller = keyboard.Controller()  # Pour contrôller le clavier
 
-NB_FRAME = 10  # Tout les combiens de tick les effets peuvent s'activer
+NB_FRAME = 20  # Tout les combiens de tick les effets peuvent s'activer
 frame_actuelle = NB_FRAME
 
 # DEBUG
@@ -74,16 +74,14 @@ async def main():
 
                 geste = detect_gesture(None, parser.gyro, None, detect_pos_flex(parser.flex))
                 if frame_actuelle == NB_FRAME and geste == "swipe_gauche":
-                    print("=====================+SWIPEEEEEe")
-                    controller.press(keyboard.Key.right)
-                    controller.release(keyboard.Key.right)
+                    print("GAUCHE")
+                    handle_swipe_gauche()
                     frame_actuelle = 0
 
                 # Passe à la diapo suivante
                 elif frame_actuelle == NB_FRAME and geste == "swipe_droit":
-                    print("=======DROIIIIIIIIIIIIIIIIIIIIIIT")
-                    controller.press(keyboard.Key.left)
-                    controller.release(keyboard.Key.left)
+                    print("DROIT")
+                    handle_swipe_droit()
                     frame_actuelle = 0
 
                 elif frame_actuelle != NB_FRAME:
