@@ -27,17 +27,26 @@ def detect_pos_flex(flex):
         
         case [2, 0, 0]:
             return "swipe"
+        case [2, 1, 1]:
+            return "swipe"
+        case [2, 1, 0]:
+            return "swipe"
+        case [2, 0, 1]:
+            return "swipe"
     
     return "none"
 
 def transform_flex(flex):
     for i in range(len(flex)):
+        if flex[2] == 0:
+            flex[2] = flex[1]
         if flex[i] > seuilHaut:
             flex[i] = 0
         elif flex[i] > seuilBas:
             flex[i] = 1
         else:
             flex[i] = 2
+    print(flex)
     return flex
 
 def detect_gesture(acc, gyro, magneto, flex_str):
@@ -45,14 +54,20 @@ def detect_gesture(acc, gyro, magneto, flex_str):
     now = time.time()
 
     gz = gyro[2]
-    
-    if ((prev_gz < SEUIL) and (gz >= SEUIL) and (flex_str == "swipe")):
-        return "swipe_droit"
+    print(gz)
+    if abs(gz) < 20:
+        prev_gz = gz
+    else:
+        if flex_str == "swipe":
+            if prev_gz < 20 and gz > SEUIL:
+                prev_gz = gz
+                return "swipe_droit"
+            elif prev_gz > -20 and gz < -SEUIL:
+                prev_gz = gz
+                return "swipe_gauche"
+            
+    prev_gz = gz
 
-    elif ((prev_gz > - SEUIL) and (gz <= -SEUIL) and (flex_str == "swipe")):
-        return "swipe_gauche"
-
-    prev_gz = gyro[2]
 
 def handle_swipe_droit():
     controller.press(keyboard.Key.right)
