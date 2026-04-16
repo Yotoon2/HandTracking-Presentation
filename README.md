@@ -4,8 +4,9 @@ Ce projet-prototype a pour objectif la reconnaissance de gestes via hand-trackin
 Il possède deux versions utilisable pour l'instant ; une considérant seulement du code python sans autre matériel (donc restriction à la webcam pour la détection de gestes) et l'autre ajoutant tout un montage avec capteurs flex sensors et carte arduino.
 
 ## Pré-requis
-Il est nécessaire d'installer cette bibliothèque Arduino (sur IDE) pour exécuter les programmes avec la Arduino :
+Il est nécessaire d'installer ces bibliothèques Arduino (sur IDE) pour exécuter les programmes avec la Arduino :
 * Arduino_BMI270_BMM150.h
+* ArduinoBLE.h
 
 ## Démarrage
 SANS ARDUINO :
