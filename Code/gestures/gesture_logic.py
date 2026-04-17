@@ -8,9 +8,11 @@ seuilBas = 100
 seuilHaut = 210
 prev_gz = 0
 
-SEUIL = 50
+SEUIL = 100
 COOLDOWN = 5
 last_trigger = 0
+ZONE_MORTE = 25
+history = []
 
 def detect_pos_flex(flex):
 
@@ -46,27 +48,25 @@ def transform_flex(flex):
             flex[i] = 1
         else:
             flex[i] = 2
-    print(flex)
+    #print(flex)
     return flex
 
 def detect_gesture(acc, gyro, magneto, flex_str):
-    global last_trigger, prev_gz, COOLDOWN
-    now = time.time()
-
+    global history
     gz = gyro[2]
-    print(gz)
-    if abs(gz) < 20:
-        prev_gz = gz
-    else:
-        if flex_str == "swipe":
-            if prev_gz < 20 and gz > SEUIL:
-                prev_gz = gz
-                return "swipe_droit"
-            elif prev_gz > -20 and gz < -SEUIL:
-                prev_gz = gz
-                return "swipe_gauche"
-            
-    prev_gz = gz
+
+    history.append(gz)
+    if len(history) > 5:
+        history.pop(0)
+    if flex_str != "swipe":
+        return None
+    
+    if max(history) > 80:
+        history.clear()
+        return "swipe_droit"
+    if min(history) < -80:
+        history.clear
+        return "swipe_gauche"
 
 
 def handle_swipe_droit():
