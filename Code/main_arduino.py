@@ -74,13 +74,11 @@ async def main():
 
                 geste = detect_gesture(None, parser.gyro, None, detect_pos_flex(parser.flex))
                 if frame_actuelle == NB_FRAME and geste == "swipe_gauche":
-                    print("GAUCHE")
-                    handle_swipe_gauche()
+                    handle_swipe_droit()
                     frame_actuelle = 0
 
                 # Passe à la diapo suivante
                 elif frame_actuelle == NB_FRAME and geste == "swipe_droit":
-                    print("DROIT")
                     handle_swipe_droit()
                     frame_actuelle = 0
 
